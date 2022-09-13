@@ -8,12 +8,6 @@ Ansible role for installing vault.
 
 Poetry. Install it from <https://python-poetry.org/docs/>
 
-## Role Variables
-
-```yaml
-vault_version: 3.7.2
-```
-
 ## Dependencies
 
 None
