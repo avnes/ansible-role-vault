@@ -1,1 +1,55 @@
 ---
+- name: Add repository for Fedora
+  ansible.builtin.yum_repository:
+    name: hashicorp
+    description: Hashicorp Stable
+    baseurl: https://rpm.releases.hashicorp.com/fedora/$releasever/$basearch/stable
+    enabled: 1
+    gpgcheck: 1
+    gpgkey: https://rpm.releases.hashicorp.com/gpg
+  when: ansible_distribution == "Fedora"
+
+- name: Add repository for EL
+  ansible.builtin.yum_repository:
+    name: hashicorp
+    description: Hashicorp Stable
+    baseurl: https://rpm.releases.hashicorp.com/RHEL/$releasever/$basearch/stable
+    enabled: 1
+    gpgcheck: 1
+    gpgkey: https://rpm.releases.hashicorp.com/gpg
+  when: ansible_distribution == "CentOS" or ansible_distribution == "RedHat"
+
+- name: Install Vault on Fedora and EL
+  ansible.builtin.dnf:
+    name: "vault"
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Save apt key for Ubuntu and Debian
+  ansible.builtin.get_url:
+    url: https://apt.releases.hashicorp.com/gpg
+    dest: /tmp/hashicorp-archive-keyring.gpg
+    mode: 0644
+  when: ansible_os_family == "Debian"
+
+- name: Dearmor the key
+  ansible.builtin.shell: "set -o pipefail && cat /tmp/hashicorp-archive-keyring.gpg | gpg --dearmor | tee /usr/share/keyrings/hashicorp-archive-keyring.gpg"
+  args:
+    executable: /bin/bash
+  when: ansible_os_family == "Debian"
+  changed_when: False
+  tags:
+    - skip_ansible_lint
+    
+
+- name: Add repository for Ubuntu and Debian
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Update apt cache and install Vault on Ubuntu and Debian
+  ansible.builtin.apt:
+    name: vault
+    update_cache: yes
+  when: ansible_os_family == "Debian"

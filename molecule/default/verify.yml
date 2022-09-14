@@ -1,1 +1,18 @@
 ---
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Stat vault
+    ansible.builtin.stat:
+      path: /usr/bin/vault
+    register: stat_vault
+  - name: Assert that vault exists
+    ansible.builtin.assert:
+      that: stat_vault.stat.exists
+  - name: Assert that vault is a regular file
+    ansible.builtin.assert:
+      that: stat_vault.stat.isreg
+  - name: Assert that vault has mode 0755
+    ansible.builtin.assert:
+      that: stat_vault.stat.mode == '0755'

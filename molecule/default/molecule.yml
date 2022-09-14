@@ -4,11 +4,14 @@ dependency:
 driver:
   name: docker
 platforms:
-  - name: ansible-role-openbox2go-fedora
+  - name: ansible-role-vault-fedora
     image: ghcr.io/avnes/molecule-fedora:36
     pre_build_image: true
-  - name: ansible-role-vault
+  - name: ansible-role-vault-ubuntu
     image: ghcr.io/avnes/molecule-ubuntu:latest
+    pre_build_image: true
+  - name: ansible-role-vault-centos
+    image: ghcr.io/avnes/molecule-centos-stream:8.0.1
     pre_build_image: true
 provisioner:
   name: ansible
